@@ -52,8 +52,6 @@ function setBadgeNone() {
 // Основная проверка
 // ========================
 
-var currentCheckTimer = null; // таймер текущего запроса
-
 function checkSizes() {
   console.log('[BG] Начинаю проверку...');
   setBadgeChecking();
@@ -65,18 +63,36 @@ function checkSizes() {
     var onTabUpdated = function (id, info) {
       if (id === tabId && info.status === 'complete') {
         chrome.tabs.onUpdated.removeListener(onTabUpdated);
-        console.log('[BG] Страница загружена');
+        console.log('[BG] Страница загружена, жду рендер...');
 
-        // Ставим таймер — через 5 секунд спрашиваем размеры
-        // (если content script не прислал их раньше)
-        currentCheckTimer = setTimeout(function () {
-          currentCheckTimer = null;
+        // Ждём 5 секунд — SPA подгружает размеры асинхронно
+        setTimeout(function () {
           chrome.tabs.sendMessage(tabId, { action: 'getSizes' }, function (response) {
             if (chrome.runtime.lastError) {
-              console.warn('[BG] Не удалось получить размеры (вкладка закрыта)');
+              console.error('[BG] Ошибка:', chrome.runtime.lastError.message);
+              setBadgeNone();
+              closeTab(tabId);
               return;
             }
-            processSizes(response && response.sizes, tabId);
+
+            var sizes = response && response.sizes;
+            if (!sizes) {
+              console.warn('[BG] Размеры не получены');
+              setBadgeNone();
+              closeTab(tabId);
+              return;
+            }
+
+            console.log('[BG] Размеры:', sizes);
+
+            if (hasInterestingSizes(sizes)) {
+              console.log('[BG] *** ИНТЕРЕСНЫЕ РАЗМЕРЫ ***');
+              setBadgeGreen();
+            } else {
+              setBadgeNone();
+            }
+
+            closeTab(tabId);
           });
         }, 5000);
       }
@@ -86,32 +102,6 @@ function checkSizes() {
   });
 }
 
-/**
- * Обработать полученные размеры
- */
-function processSizes(sizes, tabId) {
-  if (!sizes || sizes.length === 0) {
-    console.warn('[BG] Размеры не получены');
-    setBadgeNone();
-    closeTab(tabId);
-    return;
-  }
-
-  console.log('[BG] Размеры:', sizes);
-
-  if (hasInterestingSizes(sizes)) {
-    console.log('[BG] *** ИНТЕРЕСНЫЕ РАЗМЕРЫ ***');
-    setBadgeGreen();
-  } else {
-    setBadgeNone();
-  }
-
-  closeTab(tabId);
-}
-
-/**
- * Закрыть вкладку, игнорируя ошибки
- */
 function closeTab(tabId) {
   if (!tabId) return;
   try {
@@ -144,28 +134,6 @@ chrome.runtime.onInstalled.addListener(function (details) {
 chrome.alarms.onAlarm.addListener(function (alarm) {
   if (alarm.name === CONFIG.alarmName) {
     checkSizes();
-  }
-});
-
-// Content script присылает размеры автоматически
-chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
-  if (request.action === 'sizesFound' && sender.tab) {
-    var sizes = request.sizes;
-    console.log('[BG] Авто-ответ:', sizes);
-
-    // Отменяем таймер — ответ уже получен
-    if (currentCheckTimer) {
-      clearTimeout(currentCheckTimer);
-      currentCheckTimer = null;
-    }
-
-    if (hasInterestingSizes(sizes)) {
-      setBadgeGreen();
-    } else {
-      setBadgeNone();
-    }
-
-    closeTab(sender.tab.id);
   }
 });
 

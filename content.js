@@ -4,8 +4,6 @@
 (function () {
   "use strict";
 
-  var sizesSent = false;
-
   /**
    * Найти размеры — возвращает { available: [...], all: [...] }
    * или null если ещё не загружены
@@ -39,20 +37,6 @@
     return { all: all, available: available };
   }
 
-  /**
-   * Отправить результат в background
-   */
-  function sendResult(result) {
-    if (sizesSent) return;
-    sizesSent = true;
-    console.log('[Content] Размеры найдены:', result);
-    chrome.runtime.sendMessage({
-      action: 'sizesFound',
-      sizes: result.available,
-      allSizes: result.all
-    });
-  }
-
   // Ответ на прямой запрос от background
   chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
     if (request.action === 'getSizes') {
@@ -63,33 +47,5 @@
         sendResponse({ sizes: null });
       }
     }
-  });
-
-  // Автоотправка при загрузке
-  window.addEventListener('load', function () {
-    setTimeout(function () {
-      var result = findSizes();
-      if (result) {
-        sendResult(result);
-      } else {
-        console.log('[Content] Размеры ещё не загружены, жду...');
-      }
-    }, 3000);
-  });
-
-  // MutationObserver — ловим асинхронную загрузку
-  var observer = new MutationObserver(function () {
-    if (!sizesSent) {
-      var result = findSizes();
-      if (result) {
-        sendResult(result);
-        observer.disconnect();
-      }
-    }
-  });
-
-  observer.observe(document.body, {
-    childList: true,
-    subtree: true
   });
 })();
