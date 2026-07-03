@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(curl -sL --max-time 15 -A \"Mozilla/5.0 \\(Windows NT 10.0; Win64; x64\\) AppleWebKit/537.36 \\(KHTML, like Gecko\\) Chrome/120.0.0.0 Safari/537.36\" \"https://www.lamoda.ru/p/mp002xm00b1y/shoes-harryhatchet-botinki/\")",
+      "Bash(curl -sL --max-time 15 -A \"Mozilla/5.0 \\(Windows NT 10.0; Win64; x64\\) AppleWebKit/537.36 \\(KHTML, like Gecko\\) Chrome/120.0.0.0 Safari/537.36\" -c /tmp/lamoda_cookies.txt -b /tmp/lamoda_cookies.txt \"https://www.lamoda.ru/p/mp002xm00b1y/shoes-harryhatchet-botinki/\")"
+    ]
+  }
+}

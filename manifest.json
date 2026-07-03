@@ -1,0 +1,24 @@
+{
+  "manifest_version": 3,
+  "name": "Lamoda Boot Tracker",
+  "version": "1.0",
+  "description": "Мониторит наличие размеров ботинок HarryHatchet на Lamoda",
+  "permissions": [
+    "alarms",
+    "tabs",
+    "storage"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["*://*.lamoda.ru/*"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "action": {
+    "default_title": "Lamoda Boot Tracker"
+  }
+}
