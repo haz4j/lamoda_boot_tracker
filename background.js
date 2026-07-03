@@ -3,16 +3,7 @@
 // получает данные о размерах от content script,
 // решает, нужно ли обновить иконку
 
-// ========================
-// Конфиг
-// ========================
-
-var CONFIG = {
-  targetUrl: 'https://www.lamoda.ru/p/mp002xm00b1y/shoes-harryhatchet-botinki/',
-  uninterestingSizes: [37, 38],
-  checkIntervalMinutes: 10,
-  alarmName: 'lamodaCheck',
-};
+import { CONFIG } from './config.js';
 
 // ========================
 // Логика
@@ -45,7 +36,7 @@ function setBadgeChecking() {
 
 function setBadgeNone() {
   chrome.action.setBadgeText({ text: '' });
-  chrome.action.setTitle({ title: 'Только обычные размеры (37, 38)' });
+  chrome.action.setTitle({ title: 'Только обычные размеры (' + CONFIG.uninterestingSizes.join(', ') + ')' });
 }
 
 // ========================

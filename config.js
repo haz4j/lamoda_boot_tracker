@@ -1,5 +1,5 @@
 // config.js — все настройки в одном месте
-const CONFIG = {
+export const CONFIG = {
   // URL страницы для мониторинга
   targetUrl: "https://www.lamoda.ru/p/mp002xm00b1y/shoes-harryhatchet-botinki/",
 
