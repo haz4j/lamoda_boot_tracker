@@ -118,10 +118,11 @@ function closeTab(tabId) {
 // ========================
 
 chrome.runtime.onStartup.addListener(function () {
-  console.log('[BG] Расширение запущено');
+  console.log('[BG] Расширение запущено — первая проверка');
   chrome.alarms.create(CONFIG.alarmName, {
     periodInMinutes: CONFIG.checkIntervalMinutes,
   });
+  checkSizes();
 });
 
 chrome.runtime.onInstalled.addListener(function (details) {
